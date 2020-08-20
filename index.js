@@ -1,13 +1,13 @@
 'use strict';
 const BootBot = require('bootbot');
 const axios = require('axios');
-
+const config = require('../config');
 const donatePlasmaConvo = require('./conversations/donatePlasma');
 
 const bot = new BootBot({
-  accessToken: "EAAFKZABh8UxIBABML93tQT0dlnPUpeoP7l0RZAumsD8JrACBJUlnlBRKXZAQPe4ZAWYOFzZBrzR4AFnDO6HNdqZBzV8V3mFbaeVZBZCPr5hQciKhXHC0IHgXtclJaBnQfIEOfGRjoXZB2KQYm0rbER8RsbtBbUwmGNgbh6jEMpsqe11VN1cCOKr7THtiIiQdUtZBMZD",
-  verifyToken: 'sokina',
-  appSecret: "905d5db00438684f6b3856517220f9ad"
+    accessToken: config.access_token,
+    verifyToken: config.verify_token,
+    appSecret: config.app_secret
 });
 /*
 bot.on('message', (payload, chat) => {
