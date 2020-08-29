@@ -170,8 +170,7 @@ module.exports = (bot) =>{
             convo.say(details,{typing:true}).then(()=>{
               convo.say("We have taken your information and will let you know as soon as we find a match for you",{typing:true}).then(()=>{
                 pool.query(`select * from fbcontest where type=0 and bg=\'${convo.get('BG')}\'`).then(res=>{
-                  convo.say(JSON.stringify(res.rows)).then(()=>{
-                    if(res.rows>0){
+                    if(res.rows.length>0){
                       convo.say("We have found some donors matching your bloodgroup",{typing:true}).then(()=>{
                         var elements=[]
                         res.rows.map(row=>{
@@ -195,7 +194,7 @@ module.exports = (bot) =>{
                     }
                     else
                       convo.end();
-                  })
+
                 })
 
               })
