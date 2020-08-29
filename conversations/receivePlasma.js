@@ -183,7 +183,11 @@ module.exports = (bot) =>{
                               "title":row.data.name,
                               "image_url":row.data.image,
                               "subtitle":des,
-                              "buttons":[{type: 'postback', title: 'Location', payload: 'Ask' }]
+                              "buttons":[
+                                {type: 'postback', title: `Inform ${row.data.name} ${row.m_id}`, payload: 'INFORM_DONOR' },
+                                {type: 'postback', title: `Details of ${row.data.name} ${row.m_id}`, payload: 'DETAILS_DONOR' }
+
+                              ]
                           };
                           elements.push(element)
                         })
