@@ -222,7 +222,8 @@ module.exports = (bot) =>{
 
 
     bot.on('postback:INFORM_DONOR', (payload, chat) => {
-        var sl=payload.message.text.split('-')[1]
+        var sl=payload.postback.title.split('-')[1]
+        console.log(sl)
         pool.query('select * from fbcontest where sl='+sl).then(res=>{
           if(res.rows.length>0){
             var row=res.rows[0]
@@ -234,7 +235,7 @@ module.exports = (bot) =>{
                     `Address - ${row.data.location}\n`+
                     `Contact - ${row.data.contact}\n`;
             tmpMsg+=des
-            bot.sendTextMessage(row.m_id,des).then(()=>{
+            bot.sendTextMessage(row.m_id,tmpMsg).then(()=>{
               var des=`Blood group - ${row.bg.toUpperCase()}\n`+
                       `Age - ${row.data.age} years, ${row.data.sex}\n`+
                       `Affected from COVID-19 for ${row.data.affected} days\n`+

@@ -15,7 +15,7 @@ module.exports = (bot) =>{
         chat.conversation((convo) => {
             convo.getUserProfile().then(profile=>{
               convo.set('profile',profile)
-              convo.sendTypingIndicator(1000).then(() => showCards(convo));
+              convo.sendTypingIndicator(1000).then(() => askSex(convo));
             })
 
         });
@@ -254,7 +254,46 @@ module.exports = (bot) =>{
             `;
             convo.say(details,{typing:true}).then(()=>{
               convo.say("We have taken your information and will let you know if needed",{typing:true}).then(()=>{
-                convo.end();
+                pool.query(`select * from fbcontest where type=1 and bg=\'${convo.get('BG')}\'`).then(res=>{
+                    if(res.rows.length>0){
+                      var tmpMsg='We have found some plasma-receipients matching your bloodgroup';
+                      res.rows.map((row,ind)=>{
+                        var des=`\n\n(${ind+1}) ${row.data.name}\n`+
+                                `Blood group - ${row.bg.toUpperCase()}\n`+
+                                `Age - ${row.data.age} years, ${row.data.sex}\n`+
+                                `Diagnosed with COVID-19 ${row.data.affected} days ago\n`+
+                                `Address - ${row.data.location}\n`+
+                                `Contact - ${row.data.contact}\n`;
+
+                        tmpMsg+=des
+                      })
+                      convo.say(tmpMsg,{typing:true}).then(()=>{
+                        var elements=[]
+                        res.rows.map(row=>{
+                          var des=`Blood group - ${row.bg.toUpperCase()}\n`+
+                                  `Age - ${row.data.age} years, ${row.data.sex}\n`+
+                                  `Diagnosed with COVID-19 ${row.data.affected} days ago\n`+
+                                  `Address - ${row.data.location}\n`+
+                                  `Contact - ${row.data.contact}\n`;
+                          var element = {
+                              "title":row.data.name,
+                              "image_url":row.data.image,
+                              "subtitle":des,
+                              "buttons":[
+                                {type: 'postback', title: `Inform-${row.sl}`, payload: 'INFORM_RECEIPIENT' }
+                              ]
+                          };
+                          elements.push(element)
+                        })
+                        convo.sendGenericTemplate(elements,{typing:true}).then(()=>{
+                          convo.end()
+                        })
+                      })
+                    }
+                    else
+                      convo.end();
+
+                })
               })
             });
           }).catch(err=>{
@@ -264,6 +303,43 @@ module.exports = (bot) =>{
 
 
     };
+
+
+
+    bot.on('postback:INFORM_RECEIPIENT', (payload, chat) => {
+        var sl=payload.postback.title.split('-')[1]
+        console.log(sl)
+        pool.query('select * from fbcontest where sl='+sl).then(res=>{
+          if(res.rows.length>0){
+            var row=res.rows[0]
+            var tmpMsg='We have found a plasma donor matching your bloodgroup';
+            var des=`\n\n${row.data.name}\n`+
+                    `Blood group - ${row.bg.toUpperCase()}\n`+
+                    `Age - ${row.data.age} years, ${row.data.sex}\n`+
+                    `Recovered from COVID-19 ${row.data.recovered} days ago\n`+
+                    `Address - ${row.data.location}\n`+
+                    `Contact - ${row.data.contact}\n`;
+            tmpMsg+=des
+            bot.sendTextMessage(row.m_id,tmpMsg).then(()=>{
+              var des=`Blood group - ${row.bg.toUpperCase()}\n`+
+                      `Age - ${row.data.age} years, ${row.data.sex}\n`+
+                      `Recovered from COVID-19 ${row.data.recovered} days ago\n`+
+                      `Address - ${row.data.location}\n`+
+                      `Contact - ${row.data.contact}\n`;
+              var element = {
+                  "title":row.data.name,
+                  "image_url":row.data.image,
+                  "subtitle":des
+              };
+              bot.sendGenericTemplate(row.m_id,[element],{typing:true}).then(()=>{
+                convo.end()
+              })
+            })
+
+          }
+        })
+
+    });
 
 
 };
