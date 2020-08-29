@@ -1,6 +1,7 @@
 const BootBot = require('bootbot');
 const axios = require('axios');
 const donatePlasmaConvo = require('./conversations/donatePlasma');
+const receivePlasmaConvo = require('./conversations/receivePlasma');
 
 const bot = new BootBot({
     accessToken: process.env.access_token,
@@ -26,7 +27,7 @@ bot.hear(['hello', 'hi', /hey( there)?/i], (payload, chat) => {
             text: 'How Can you help you?',
             buttons: [
                 { type: 'postback', title: 'Donate Plasma', payload: 'DONATE_PLASMA' },
-                { type: 'postback', title: 'Show Generic Cards', payload: 'RECIEVE_PLASMA' },
+                { type: 'postback', title: 'Receive Plasma', payload: 'RECEIVE_PLASMA' },
                 { type: 'web_url', title: 'Visit Google', url: 'https://www.google.com/', messenger_extensions: "FALSE", }
             ],
         },{typing:true});
@@ -119,6 +120,7 @@ async function getLocation(text,chat){
 }
 
 bot.module(donatePlasmaConvo);
+bot.module(receivePlasmaConvo);
 
 const port=process.env.port||3000
 bot.start(port);
