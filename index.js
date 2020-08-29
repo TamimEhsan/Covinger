@@ -24,7 +24,7 @@ bot.hear(['hello', 'hi', /hey( there)?/i], (payload, chat) => {
   chat.getUserProfile().then(user=>{
     chat.say(`Hello ${user.first_name+' '+user.last_name} , I am Covid-19 help bot Covinger. Nice to see you. Here we seek to help you with plasma donation and recieve with higher efficiency and less errors.\n`,{typing:true}).then(()=>{
         chat.say({
-            text: 'How Can you help you?',
+            text: 'How can I help you?',
             buttons: [
                 { type: 'postback', title: 'Donate Plasma', payload: 'DONATE_PLASMA' },
                 { type: 'postback', title: 'Receive Plasma', payload: 'RECEIVE_PLASMA' },
