@@ -64,20 +64,16 @@ module.exports = (bot) =>{
             const text = payload.message.text;
             if( isNaN(text) ){
                 convo.say('That\'s not a proper age').then(()=> askAge(convo));
-            } else if(text<17 || text>65){
-                convo.say('Sorry, according to medical research it would be better for you if you don\'t donate plasma' +
-                    '\n But Thank you for your support. Please Take care of yourself and your family. ');
-                convo.end();
-            } else{
-                convo.set('age',text);
-                askEffectDate(convo);
+            }else{
+              convo.set('age',text);
+              askAffectedDate(convo);
             }
 
         });
     };
 
 
-    const askAffectDate = (convo) =>{
+    const askAffectedDate = (convo) =>{
         convo.ask( (convo) =>{
             convo.say('How long ago were you diagnosed with covid-19? Input just the number of days',{typing:true});
         }, (payload,chat,data) =>{
