@@ -1,3 +1,13 @@
+const Pool = require('pg').Pool
+
+const pool = new Pool({
+    user: process.env.db_user,
+    host: process.env.db_host,
+    database: process.env.db_db,
+    password: process.env.db_pass,
+    port: process.env.db_port
+})
+
 module.exports = (bot) =>{
     bot.on('postback:DONATE_PLASMA', (payload, chat) => {
         chat.conversation((convo) => {
@@ -8,54 +18,6 @@ module.exports = (bot) =>{
 
         });
     });
-
-    /*const namePrompt = (convo) => {
-        convo.ask((convo) => {
-            const buttons = [
-                { type: 'postback', title: 'Male', payload: 'MALE' },
-                { type: 'postback', title: 'Female', payload: 'FEMALE' }
-            ];
-            convo.sendButtonTemplate(`Is ${convo.getUserProfile}`,buttons);
-        }, (payload, convo, data) => {
-            const text = payload.message.text;
-            if(text.toLowerCase() === 'female' ){
-                convo.set('gender', 'female');
-                askPregnancy(convo);
-            } else if(text.toLowerCase() === 'male'){
-                convo.set('gender', 'male');
-                askAge(convo);
-            } else{
-                convo.say('We couldn\'t catch what you just said').then(()=> askSex(convo) );
-            }
-
-        },[
-            {
-                event: 'postback:MALE',
-                callback: (payload, convo) => {
-                    convo.set('gender','male');
-                    askAge(convo);
-                }
-            },
-            {
-                event: 'postback:FEMALE',
-                callback: (payload, convo) => {
-                    convo.set('gender','female');
-                    askPregnancy(convo);
-                }
-            }
-        ]);
-    };*/
-
-    const askName = (convo) => {
-
-        convo.ask((convo) => {
-            convo.say(`What is your name?`, {typing: true});
-        }, (payload, convo, data) => {
-            const text = payload.message.text;
-            convo.set('name', text);
-            askSex(convo);
-        });
-    };
 
     const askSex = (convo) => {
         convo.ask((convo) => {
@@ -244,39 +206,60 @@ module.exports = (bot) =>{
             const text = payload.message.text;
             // Check the blood group crieteria
             convo.set('location',text);
+            askContact(convo);
+        });
+    };
+
+    const askContact = (convo) =>{
+        convo.ask( (convo) =>{
+            convo.say('Please provide us with your phone number or email address so that plasma recievers can contact you easily',{typing:true});
+        }, (payload,chat,data) =>{
+            const text = payload.message.text;
+            // Check the blood group crieteria
+            convo.set('contact',text);
             showDetails(convo);
         });
     };
 
     const showDetails = (convo) =>{
-        const details = `So, Here is what we got from you,\n`+
-            `I ${convo.get('profile').first_name+' '+convo.get('profile').last_name} , ${convo.get('age')} years ${convo.get('gender')} `+
-            `with blood group ${convo.get('BG')}  have no conditions that might `+
-            `affect the reciever and having number of antibody `+
-            `in plasma after recovering from covid for at least 14 days am willing `+
-            `to donate on my free will.
-        `;
-        convo.say(details,{typing:true});
-        convo.end();
-    };
-
-    const donatePlasmaLoop = (convo) => {
-        convo.ask((convo)=>{
-            convo.say(`Want to donate plasma?`,{typing:true});
-        }, (payload, convo, data) => {
-            const text = payload.message.text;
-            convo.set('name', text);
-            if( text === "no" ){
-                convo.say(`Shala dibi na mane? tor bap dibe`,{typing:true}).then(() => donatePlasmaLoop(convo));
-            } else if( text === "yes" ) {
-                convo.getUserProfile().then((user) => {
-                    convo.say(`Thank you for your cooperation ${user.first_name} ${user.last_name}`,{typing:true});
-                });
-
+        const query = {
+            text: 'INSERT INTO fbcontest(m_id,type,data,bg) VALUES($1,$2,$3,$4)',
+            values: [
+              convo.get('profile').id,
+              0,
+              {
+                name:convo.get('profile').first_name+' '+convo.get('profile').last_name,
+                image:convo.get('profile').profile_pic,
+                timestamp:Date.now(),
+                age:convo.get('age'),
+                location:convo.get('location'),
+                contact:convo.get('contact'),
+                sex:convo.get('gender'),
+                recovered:convo.get('recoveredDate')
+              },
+              convo.get('BG')
+            ]
+          }
+          pool.query(query).then(res=>{
+            const details = `So, Here is what we got from you,\n`+
+                `I ${convo.get('profile').first_name+' '+convo.get('profile').last_name} , ${convo.get('age')} years ${convo.get('gender')} `+
+                `with blood group ${convo.get('BG')}  have no conditions that might `+
+                `affect the reciever in a negative way, `+
+                `I haved recovered from covid for at least 14 days am willing `+
+                `to donate on my free will.
+            `;
+            convo.say(details,{typing:true}).then(()=>{
+              convo.say("We have taken your information and will let you know if needed",{typing:true}).then(()=>{
                 convo.end();
-            }
+              })
+            });
+          }).catch(err=>{
+            console.log(err)
+          })
 
-        });
+
+
     };
+
 
 };
