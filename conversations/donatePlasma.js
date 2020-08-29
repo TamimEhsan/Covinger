@@ -10,6 +10,9 @@ const pool = new Pool({
 
 
 
+
+
+
 module.exports = (bot) =>{
     bot.on('postback:DONATE_PLASMA', (payload, chat) => {
         chat.conversation((convo) => {
@@ -303,7 +306,6 @@ module.exports = (bot) =>{
 
 
     };
-
 
 
     bot.on('postback:INFORM_RECEIPIENT', (payload, chat) => {
