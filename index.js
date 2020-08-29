@@ -15,9 +15,20 @@ bot.on('message', (payload, chat) => {
 
 });
 */
-bot.setGreetingText('Hey there! Welcome to BootBot!');
+bot.setGreetingText('Hey there! Welcome to Covinger!');
 bot.setGetStartedButton((payload, chat) => {
-    chat.say('Welcome to BootBot. What are you looking for?');
+  chat.getUserProfile().then(user=>{
+    chat.say(`Hello ${user.first_name+' '+user.last_name} , I am Covid-19 help bot Covinger. Nice to see you. Here we seek to help you with plasma donation and recieve with higher efficiency and less errors.\n`,{typing:true}).then(()=>{
+        chat.say({
+            text: 'How can I help you?',
+            buttons: [
+                { type: 'postback', title: 'Donate Plasma', payload: 'DONATE_PLASMA' },
+                { type: 'postback', title: 'Receive Plasma', payload: 'RECEIVE_PLASMA' },
+                { type: 'web_url', title: 'Visit Google', url: 'https://www.google.com/', messenger_extensions: "FALSE", }
+            ],
+        },{typing:true});
+    });
+  })
 });
 
 bot.hear(['hello', 'hi', /hey( there)?/i], (payload, chat) => {
