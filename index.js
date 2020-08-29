@@ -1,13 +1,11 @@
-'use strict';
 const BootBot = require('bootbot');
 const axios = require('axios');
-const config = require('../config');
 const donatePlasmaConvo = require('./conversations/donatePlasma');
 
 const bot = new BootBot({
-    accessToken: config.access_token,
-    verifyToken: config.verify_token,
-    appSecret: config.app_secret
+    accessToken: process.env.access_token,
+    verifyToken: process.env.verify_token,
+    appSecret: process.env.app_secret
 });
 /*
 bot.on('message', (payload, chat) => {
@@ -22,7 +20,8 @@ bot.setGetStartedButton((payload, chat) => {
 });
 
 bot.hear(['hello', 'hi', /hey( there)?/i], (payload, chat) => {
-    chat.say('Hi there! I am Covid-19 help bot Covinger. Nice to see you. Here we seek to help you with plasma donation and recieve with higher efficiency and less errors.\n',{typing:true}).then(()=>{
+  chat.getUserProfile().then(user=>{
+    chat.say(`Hello ${user.first_name+' '+user.last_name} , I am Covid-19 help bot Covinger. Nice to see you. Here we seek to help you with plasma donation and recieve with higher efficiency and less errors.\n`,{typing:true}).then(()=>{
         chat.say({
             text: 'How Can you help you?',
             buttons: [
@@ -32,6 +31,7 @@ bot.hear(['hello', 'hi', /hey( there)?/i], (payload, chat) => {
             ],
         },{typing:true});
     });
+  })
 
 });
 
@@ -119,4 +119,6 @@ async function getLocation(text,chat){
 }
 
 bot.module(donatePlasmaConvo);
-bot.start(3000);
+
+const port=process.env.port||3000
+bot.start(port);
