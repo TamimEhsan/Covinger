@@ -145,7 +145,7 @@ module.exports = (bot) =>{
 
     const showDetails = (convo) =>{
         const query = {
-            text: 'INSERT INTO fbcontest(m_id,type,data,bg) VALUES($1,$2,$3,$4)',
+            text: 'INSERT INTO fbcontest(m_id,type,data,bg) VALUES($1,$2,$3,$4) returning *',
             values: [
               convo.get('profile').id,
               1,
@@ -162,7 +162,7 @@ module.exports = (bot) =>{
               convo.get('BG')
             ]
           }
-          pool.query(query).then(res=>{
+          pool.query(query).then(insRes=>{
             const details = `So, Here is what we got from you,\n`+
                 `I ${convo.get('profile').first_name+' '+convo.get('profile').last_name} , ${convo.get('age')} years ${convo.get('gender')} `+
                 `with blood group ${convo.get('BG')}  `+
@@ -197,7 +197,7 @@ module.exports = (bot) =>{
                               "image_url":row.data.image,
                               "subtitle":des,
                               "buttons":[
-                                {type: 'postback', title: `Inform-${row.sl}`, payload: 'INFORM_DONOR' }
+                                {type: 'postback', title: `Inform-${row.sl}-${insRes.rows[0].sl}`, payload: 'INFORM_DONOR' }
                               ]
                           };
                           elements.push(element)
@@ -225,34 +225,38 @@ module.exports = (bot) =>{
 
     bot.on('postback:INFORM_DONOR', (payload, chat) => {
         var sl=payload.postback.title.split('-')[1]
+        var sl1=payload.postback.title.split('-')[2]
         console.log(sl)
-        pool.query('select * from fbcontest where sl='+sl).then(res=>{
-          if(res.rows.length>0){
-            var row=res.rows[0]
-            var tmpMsg='We have found a plasma reciever matching your bloodgroup';
-            var des=`\n\n${row.data.name}\n`+
-                    `Blood group - ${row.bg.toUpperCase()}\n`+
-                    `Age - ${row.data.age} years, ${row.data.sex}\n`+
-                    `Affected from COVID-19 for ${row.data.affected} days\n`+
-                    `Address - ${row.data.location}\n`+
-                    `Contact - ${row.data.contact}\n`;
-            tmpMsg+=des
-            bot.sendTextMessage(row.m_id,tmpMsg).then(()=>{
-              var des=`Blood group - ${row.bg.toUpperCase()}\n`+
-                      `Age - ${row.data.age} years, ${row.data.sex}\n`+
-                      `Affected from COVID-19 for ${row.data.affected} days\n`+
-                      `Address - ${row.data.location}\n`+
-                      `Contact - ${row.data.contact}\n`;
-              var element = {
-                  "title":row.data.name,
-                  "image_url":row.data.image,
-                  "subtitle":des
-              };
-              bot.sendGenericTemplate(row.m_id,[element],{typing:true}).then(()=>{
-                convo.end()
-              })
+        pool.query('select * from fbcontest where sl='+sl).then(res0=>{
+          if(res0.rows.length>0){
+            pool.query('select * from fbcontest where sl='+sl1).then(res=>{
+              if(res.rows.length>0){
+                var row=res.rows[0]
+                var tmpMsg='We have found a plasma recipient matching your bloodgroup';
+                var des=`\n\n${row.data.name}\n`+
+                        `Blood group - ${row.bg.toUpperCase()}\n`+
+                        `Age - ${row.data.age} years, ${row.data.sex}\n`+
+                        `Affected from COVID-19 for ${row.data.affected} days\n`+
+                        `Address - ${row.data.location}\n`+
+                        `Contact - ${row.data.contact}\n`;
+                tmpMsg+=des
+                bot.sendTextMessage(res0.rows[0].m_id,tmpMsg).then(()=>{
+                  var des=`Blood group - ${row.bg.toUpperCase()}\n`+
+                          `Age - ${row.data.age} years, ${row.data.sex}\n`+
+                          `Affected from COVID-19 for ${row.data.affected} days\n`+
+                          `Address - ${row.data.location}\n`+
+                          `Contact - ${row.data.contact}\n`;
+                  var element = {
+                      "title":row.data.name,
+                      "image_url":row.data.image,
+                      "subtitle":des
+                  };
+                  bot.sendGenericTemplate(res0.rows[0].m_id,[element],{typing:true}).then(()=>{
+                    chat.say(`We have sent your information to the donor`)
+                  })
+                })
+              }
             })
-
           }
         })
 
