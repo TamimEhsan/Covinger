@@ -325,8 +325,8 @@ module.exports = (bot) =>{
           'ab+'
         ]
       }
-    pool.query(query).then(res=>{
-      console.log()
+    pool.query('select * from fbcontest').then(res=>{
+      console.log(res.rows)
     })*/
 
     bot.on('postback:INFORM_RECEIPIENT', (payload, chat) => {

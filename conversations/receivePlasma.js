@@ -166,7 +166,7 @@ module.exports = (bot) =>{
             const details = `So, Here is what we got from you,\n`+
                 `I ${convo.get('profile').first_name+' '+convo.get('profile').last_name} , ${convo.get('age')} years ${convo.get('gender')} `+
                 `with blood group ${convo.get('BG')}  `+
-                `I have diagnosed with covid-19 for ${convo.get('recoveredDate')} days `+
+                `I have diagnosed with covid-19 for ${convo.get('affectedDate')} days `+
                 `I need plasma as soon as possible.
             `;
             convo.say(details,{typing:true}).then(()=>{
