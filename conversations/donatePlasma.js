@@ -357,7 +357,7 @@ module.exports = (bot) =>{
                     "subtitle":des
                 };
                 bot.sendGenericTemplate(res0.rows[0].m_id,[element],{typing:true}).then(()=>{
-                  convo.end()
+                  chat.say(`We have sent your information to the recepient`)
                 })
               })
             })
