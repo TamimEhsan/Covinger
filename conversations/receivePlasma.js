@@ -195,7 +195,7 @@ module.exports = (bot) =>{
                               "image_url":row.data.image,
                               "subtitle":des,
                               "buttons":[
-                                {type: 'postback', title: `Inform`, payload: 'INFORM_DONOR' }
+                                {type: 'postback', title: `Inform-${row.sl}`, payload: 'INFORM_DONOR' }
                               ]
                           };
                           elements.push(element)
@@ -219,6 +219,41 @@ module.exports = (bot) =>{
 
 
     };
+
+
+    bot.on('postback:INFORM_DONOR', (payload, chat) => {
+        var sl=payload.message.text.split('-')[1]
+        pool.query('select * from fbcontest where sl='+sl).then(res=>{
+          if(res.rows.length>0){
+            var row=res.rows[0]
+            var tmpMsg='We have found a plasma reciever matching your bloodgroup';
+            var des=`\n\n${row.data.name}\n`+
+                    `Blood group - ${row.bg.toUpperCase()}\n`+
+                    `Age - ${row.data.age} years, ${row.data.sex}\n`+
+                    `Affected from COVID-19 for ${row.data.affected} days\n`+
+                    `Address - ${row.data.location}\n`+
+                    `Contact - ${row.data.contact}\n`;
+            tmpMsg+=des
+            bot.sendTextMessage(row.m_id,des).then(()=>{
+              var des=`Blood group - ${row.bg.toUpperCase()}\n`+
+                      `Age - ${row.data.age} years, ${row.data.sex}\n`+
+                      `Affected from COVID-19 for ${row.data.affected} days\n`+
+                      `Address - ${row.data.location}\n`+
+                      `Contact - ${row.data.contact}\n`;
+              var element = {
+                  "title":row.data.name,
+                  "image_url":row.data.image,
+                  "subtitle":des
+              };
+              bot.sendGenericTemplate(row.m_id,[element],{typing:true}).then(()=>{
+                convo.end()
+              })
+            })
+
+          }
+        })
+
+    });
 
 
 };
