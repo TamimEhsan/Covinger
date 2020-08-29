@@ -8,16 +8,20 @@ const pool = new Pool({
     port: process.env.db_port
 })
 
+
+
 module.exports = (bot) =>{
     bot.on('postback:DONATE_PLASMA', (payload, chat) => {
         chat.conversation((convo) => {
             convo.getUserProfile().then(profile=>{
               convo.set('profile',profile)
-              convo.sendTypingIndicator(1000).then(() => askSex(convo));
+              convo.sendTypingIndicator(1000).then(() => showCards(convo));
             })
 
         });
     });
+
+
 
     const askSex = (convo) => {
         convo.ask((convo) => {

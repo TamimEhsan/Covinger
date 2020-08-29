@@ -171,7 +171,30 @@ module.exports = (bot) =>{
               convo.say("We have taken your information and will let you know as soon as we find a match for you",{typing:true}).then(()=>{
                 pool.query(`select * from fbcontest where type=0 and bg=\'${convo.get('BG')}\'`).then(res=>{
                   convo.say(JSON.stringify(res.rows)).then(()=>{
-                    convo.end();
+                    if(res.rows>0){
+                      convo.say("We have found some donors matching your bloodgroup",{typing:true}).then(()=>{
+                        var elements=[]
+                        res.rows.map(row=>{
+                          var des=`Blood group - ${row.bg.toUpperCase()}\n`+
+                                  `Age - ${row.data.age} years, ${row.data.sex}\n`+
+                                  `Recovered from COVID-19 ${row.data.recovered} days ago\n`+
+                                  `Address - ${row.data.location}\n`+
+                                  `Contact - ${row.data.contact}\n`;
+                          var element = {
+                              "title":row.data.name,
+                              "image_url":row.data.image,
+                              "subtitle":des,
+                              "buttons":[{type: 'postback', title: 'Location', payload: 'Ask' }]
+                          };
+                          elements.push(element)
+                        })
+                        convo.sendGenericTemplate(elements,{typing:true}).then(()=>{
+                          convo.end()
+                        })
+                      })
+                    }
+                    else
+                      convo.end();
                   })
                 })
 
