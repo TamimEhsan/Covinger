@@ -126,6 +126,7 @@ bot.module(receivePlasmaConvo);
 //bot.sendTextMessage('3379244868781988','hi')
 /*const element = {
     "title":"Header Text",
+    "text":"asasasas"
     "image_url":"https://platform-lookaside.fbsbx.com/platform/profilepic/?psid=3379244868781988&width=1024&ext=1601290869&hash=AeSrsEByIjUuWR3y",
     "subtitle":"Sub title text\ndsfsdfsdf\n",
     "buttons":[{type: 'postback', title: 'Location', payload: 'LOCATION' }]
@@ -135,7 +136,7 @@ bot.sendGenericTemplate('3379244868781988',[
   element,
   element,
   element
-])*/
+*/
 
 const port=process.env.port||3000
 bot.start(port);

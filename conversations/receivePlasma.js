@@ -171,7 +171,18 @@ module.exports = (bot) =>{
               convo.say("We have taken your information and will let you know as soon as we find a match for you",{typing:true}).then(()=>{
                 pool.query(`select * from fbcontest where type=0 and bg=\'${convo.get('BG')}\'`).then(res=>{
                     if(res.rows.length>0){
-                      convo.say("We have found some donors matching your bloodgroup",{typing:true}).then(()=>{
+                      var tmpMsg='We have found some donors matching your bloodgroup';
+                      res.rows.map((row,ind)=>{
+                        var des=`\n\n(${ind+1}) ${row.data.name}\n`+
+                                `Blood group - ${row.bg.toUpperCase()}\n`+
+                                `Age - ${row.data.age} years, ${row.data.sex}\n`+
+                                `Recovered from COVID-19 ${row.data.recovered} days ago\n`+
+                                `Address - ${row.data.location}\n`+
+                                `Contact - ${row.data.contact}\n`;
+
+                        tmpMsg+=des
+                      })
+                      convo.say(tmpMsg,{typing:true}).then(()=>{
                         var elements=[]
                         res.rows.map(row=>{
                           var des=`Blood group - ${row.bg.toUpperCase()}\n`+
@@ -184,9 +195,7 @@ module.exports = (bot) =>{
                               "image_url":row.data.image,
                               "subtitle":des,
                               "buttons":[
-                                {type: 'postback', title: `Inform ${row.data.name} ${row.m_id}`, payload: 'INFORM_DONOR' },
-                                {type: 'postback', title: `Details of ${row.data.name} ${row.m_id}`, payload: 'DETAILS_DONOR' }
-
+                                {type: 'postback', title: `Inform`, payload: 'INFORM_DONOR' }
                               ]
                           };
                           elements.push(element)
