@@ -8,6 +8,8 @@ const pool = new Pool({
     port: process.env.db_port
 })
 
+
+
 module.exports = (bot) =>{
     bot.on('postback:RECEIVE_PLASMA', (payload, chat) => {
         chat.conversation((convo) => {
@@ -144,7 +146,7 @@ module.exports = (bot) =>{
             text: 'INSERT INTO fbcontest(m_id,type,data,bg) VALUES($1,$2,$3,$4)',
             values: [
               convo.get('profile').id,
-              0,
+              1,
               {
                 name:convo.get('profile').first_name+' '+convo.get('profile').last_name,
                 image:convo.get('profile').profile_pic,
@@ -167,7 +169,12 @@ module.exports = (bot) =>{
             `;
             convo.say(details,{typing:true}).then(()=>{
               convo.say("We have taken your information and will let you know as soon as we find a match for you",{typing:true}).then(()=>{
-                convo.end();
+                pool.query(`select * from fbcontest where type=0 and bg=\'${convo.get('BG')}\'`).then(res=>{
+                  convo.say(JSON.stringify(res.rows)).then(()=>{
+                    convo.end();
+                  })
+                })
+
               })
             });
           }).catch(err=>{
