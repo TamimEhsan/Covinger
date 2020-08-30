@@ -252,7 +252,7 @@ module.exports = (bot) =>{
                 `I am ${convo.get('profile').first_name+' '+convo.get('profile').last_name} , ${convo.get('age')} years old, ${convo.get('gender')}, `+
                 `with blood group ${convo.get('BG').toUpperCase()} , have no conditions that might `+
                 `affect the recipient(s) in a negative way, `+
-                `I recovered from covid ${convo.get('recoveredDate')} days ago and am willing `+
+                `I recovered from COVID-19 ${convo.get('recoveredDate')} days ago and am willing `+
                 `to donate on my free will.
             `;
             convo.say(details,{typing:true}).then(()=>{
