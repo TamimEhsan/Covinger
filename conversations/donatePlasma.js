@@ -159,7 +159,7 @@ module.exports = (bot) =>{
 
     const askRecoveryDate = (convo) =>{
         convo.ask( (convo) =>{
-            convo.say('How long ago did you recover from covid-19? Enter just the number of days',{typing:true});
+            convo.say('How long ago did you recover from COVID-19? Enter just the number of days',{typing:true});
         }, (payload,chat,data) =>{
             const text = payload.message.text;
             if( isNaN(text) ){
