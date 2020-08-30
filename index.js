@@ -111,6 +111,8 @@ bot.hear(['help'], (payload, chat) => {
 
 
 
+
+
 async function getLocation(text,chat){
     try{
         const response = await axios.get('https://us1.locationiq.com/v1/search.php', {

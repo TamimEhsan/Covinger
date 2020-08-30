@@ -8,11 +8,6 @@ const pool = new Pool({
     port: process.env.db_port
 })
 
-
-
-
-
-
 module.exports = (bot) =>{
     bot.on('postback:DONATE_PLASMA', (payload, chat) => {
         chat.conversation((convo) => {
@@ -176,6 +171,8 @@ module.exports = (bot) =>{
             }
         });
     };
+
+
 
 
     const isValidBG=text=>{
