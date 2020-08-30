@@ -31,7 +31,7 @@ bot.setGetStartedButton((payload, chat) => {
   })
 });
 
-bot.hear(['hello', 'hi','get started', /hey( there)?/i], (payload, chat) => {
+bot.hear(['hello', 'hi','get started', /hey( there)?/i,/hi( there)?/i], (payload, chat) => {
   chat.getUserProfile().then(user=>{
     chat.say(`Hello ${user.first_name+' '+user.last_name} , I am COVID-19 rescue bot Covinger, my job is to connect plasma donors and recipients. You can find your match and contact them very easily using me.\n`,{typing:true}).then(()=>{
         chat.say({
