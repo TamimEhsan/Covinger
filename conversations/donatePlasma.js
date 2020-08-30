@@ -219,7 +219,7 @@ module.exports = (bot) =>{
 
     const askContact = (convo) =>{
         convo.ask( (convo) =>{
-            convo.say('Please provide us with your phone number or email address so that plasma recievers can contact you easily',{typing:true});
+            convo.say('Please provide us with your phone number or email address so that plasma recipients can contact you easily',{typing:true});
         }, (payload,chat,data) =>{
             const text = payload.message.text;
             // Check the blood group crieteria
@@ -251,7 +251,7 @@ module.exports = (bot) =>{
             const details = `So, Here is what we got from you,\n`+
                 `I ${convo.get('profile').first_name+' '+convo.get('profile').last_name} , ${convo.get('age')} years ${convo.get('gender')} `+
                 `with blood group ${convo.get('BG')}  have no conditions that might `+
-                `affect the reciever in a negative way, `+
+                `affect the recipient(s) in a negative way, `+
                 `I haved recovered from covid for at least 14 days am willing `+
                 `to donate on my free will.
             `;
@@ -324,10 +324,14 @@ module.exports = (bot) =>{
           },
           'ab+'
         ]
-      }
-    pool.query('select * from fbcontest').then(res=>{
-      console.log(res.rows)
-    })*/
+      }*/
+      /*pool.query('delete from fbcontest where sl=41').then(res=>{
+        pool.query('select sl from fbcontest').then(res=>{
+          console.log(res.rows)
+        })
+      })*/
+
+
 
     bot.on('postback:INFORM_RECEIPIENT', (payload, chat) => {
         var sl=payload.postback.title.split('-')[1]
@@ -357,7 +361,7 @@ module.exports = (bot) =>{
                     "subtitle":des
                 };
                 bot.sendGenericTemplate(res0.rows[0].m_id,[element],{typing:true}).then(()=>{
-                  chat.say(`We have sent your information to the recepient`)
+                  chat.say(`We have sent your information to the recipient`)
                 })
               })
             })
