@@ -79,7 +79,7 @@ module.exports = (bot) =>{
 
     const askAffectedDate = (convo) =>{
         convo.ask( (convo) =>{
-            convo.say('How long ago were you diagnosed with covid-19? Input just the number of days',{typing:true});
+            convo.say('How long ago were you diagnosed with COVID-19? Enter just the number of days',{typing:true});
         }, (payload,chat,data) =>{
             const text = payload.message.text;
             if( isNaN(text) ){
@@ -164,9 +164,9 @@ module.exports = (bot) =>{
           }
           pool.query(query).then(insRes=>{
             const details = `So, Here is what we got from you,\n`+
-                `I ${convo.get('profile').first_name+' '+convo.get('profile').last_name} , ${convo.get('age')} years ${convo.get('gender')} `+
-                `with blood group ${convo.get('BG')}  `+
-                `I have diagnosed with covid-19 for ${convo.get('affectedDate')} days `+
+                `I am ${convo.get('profile').first_name+' '+convo.get('profile').last_name} , ${convo.get('age')} years old, ${convo.get('gender')} ,`+
+                `with blood group ${convo.get('BG').toUpperCase()},  `+
+                `I was diagnosed with covid-19 ${convo.get('affectedDate')} days ago,`+
                 `I need plasma as soon as possible.
             `;
             convo.say(details,{typing:true}).then(()=>{

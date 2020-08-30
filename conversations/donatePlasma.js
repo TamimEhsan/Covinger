@@ -159,7 +159,7 @@ module.exports = (bot) =>{
 
     const askRecoveryDate = (convo) =>{
         convo.ask( (convo) =>{
-            convo.say('How long ago did you recover from covid-19? Input just the number of days',{typing:true});
+            convo.say('How long ago did you recover from covid-19? Enter just the number of days',{typing:true});
         }, (payload,chat,data) =>{
             const text = payload.message.text;
             if( isNaN(text) ){
@@ -249,10 +249,10 @@ module.exports = (bot) =>{
           }
           pool.query(query).then(insRes=>{
             const details = `So, Here is what we got from you,\n`+
-                `I ${convo.get('profile').first_name+' '+convo.get('profile').last_name} , ${convo.get('age')} years ${convo.get('gender')} `+
-                `with blood group ${convo.get('BG')}  have no conditions that might `+
+                `I am ${convo.get('profile').first_name+' '+convo.get('profile').last_name} , ${convo.get('age')} years old, ${convo.get('gender')}, `+
+                `with blood group ${convo.get('BG').toUpperCase()} , have no conditions that might `+
                 `affect the recipient(s) in a negative way, `+
-                `I haved recovered from covid for at least 14 days am willing `+
+                `I recovered from covid ${convo.get('recoveredDate')} days ago and am willing `+
                 `to donate on my free will.
             `;
             convo.say(details,{typing:true}).then(()=>{
@@ -302,36 +302,7 @@ module.exports = (bot) =>{
           }).catch(err=>{
             console.log(err)
           })
-
-
-
     };
-
-  /*  const query = {
-        text: 'INSERT INTO fbcontest(m_id,type,data,bg) VALUES($1,$2,$3,$4) returning *',
-        values: [
-          "asasasas",
-          0,
-          {
-            name:"sdsdsdsd",
-            image:"ddsdsdsdsdsd",
-            timestamp:Date.now(),
-            age:"asaaaaaaa",
-            location:"asasasasasas",
-            contact:"asasasasaSAs",
-            sex:"asasasasasasasa",
-            recovered:"asasasasas"
-          },
-          'ab+'
-        ]
-      }*/
-      /*pool.query('delete from fbcontest where sl=42').then(res=>{
-        pool.query('select sl from fbcontest').then(res=>{
-          console.log(res.rows)
-        })
-      })*/
-
-
 
     bot.on('postback:INFORM_RECEIPIENT', (payload, chat) => {
         var sl=payload.postback.title.split('-')[1]
