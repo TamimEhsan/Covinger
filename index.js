@@ -18,7 +18,7 @@ bot.on('message', (payload, chat) => {
 bot.setGreetingText('Hey there! Welcome to Covinger!');
 bot.setGetStartedButton((payload, chat) => {
   chat.getUserProfile().then(user=>{
-    chat.say(`Hello ${user.first_name+' '+user.last_name} , I am Covid-19 help bot Covinger. Nice to see you. Here we seek to help you with plasma donation and recieve with higher efficiency and less errors.\n`,{typing:true}).then(()=>{
+    chat.say(`Hello ${user.first_name+' '+user.last_name} , I am COVID-19 rescue bot Covinger, my job is to connect plasma donors and recipients. You can find your match and contact them very easily using me.\n`,{typing:true}).then(()=>{
         chat.say({
             text: 'How can I help you?',
             buttons: [
@@ -33,7 +33,7 @@ bot.setGetStartedButton((payload, chat) => {
 
 bot.hear(['hello', 'hi', /hey( there)?/i], (payload, chat) => {
   chat.getUserProfile().then(user=>{
-    chat.say(`Hello ${user.first_name+' '+user.last_name} , I am Covid-19 help bot Covinger. Nice to see you. Here we seek to help you with plasma donation and recieve with higher efficiency and less errors.\n`,{typing:true}).then(()=>{
+    chat.say(`Hello ${user.first_name+' '+user.last_name} , I am COVID-19 rescue bot Covinger, my job is to connect plasma donors and recipients. You can find your match and contact them very easily using me.\n`,{typing:true}).then(()=>{
         chat.say({
             text: 'How can I help you?',
             buttons: [
