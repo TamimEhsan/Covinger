@@ -39,7 +39,7 @@ bot.hear(['hello', 'hi', /hey( there)?/i], (payload, chat) => {
             buttons: [
                 { type: 'postback', title: 'Donate Plasma', payload: 'DONATE_PLASMA' },
                 { type: 'postback', title: 'Receive Plasma', payload: 'RECEIVE_PLASMA' },
-                { type: 'web_url', title: 'Visit Google', url: 'https://www.google.com/', messenger_extensions: "FALSE", }
+                { type: 'web_url', title: 'COVID-19 Live Update', url: 'https://www.worldometers.info/coronavirus/', messenger_extensions: "FALSE", }
             ],
         },{typing:true});
     });

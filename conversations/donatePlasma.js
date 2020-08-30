@@ -325,7 +325,7 @@ module.exports = (bot) =>{
           'ab+'
         ]
       }*/
-      /*pool.query('delete from fbcontest where sl=41').then(res=>{
+      /*pool.query('delete from fbcontest where sl=42').then(res=>{
         pool.query('select sl from fbcontest').then(res=>{
           console.log(res.rows)
         })
