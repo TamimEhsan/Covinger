@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index",
+    "test": "nodemon dev.js"
   },
   "author": "Tamim Ehsan",
   "license": "ISC",
@@ -12,6 +13,10 @@
     "axios": "^0.19.2",
     "bootbot": "^1.0.16",
     "googlemaps": "^1.12.0",
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.4",
+    "pg": "^8.3.3"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0"
   }
 }

@@ -1,20 +1,32 @@
-'use strict';
+const Pool = require('pg').Pool
+
+const pool = new Pool({
+    user: process.env.db_user,
+    host: process.env.db_host,
+    database: process.env.db_db,
+    password: process.env.db_pass,
+    port: process.env.db_port
+})
+
+
+
+pool.query('delete from fbcontest where sl=29').then(res=>{
+  console.log(res.rows)
+})
+
+
 module.exports = (bot) =>{
     bot.on('postback:DONATE_PLASMA', (payload, chat) => {
         chat.conversation((convo) => {
-            convo.sendTypingIndicator(1000).then(() => askName(convo));
+            convo.getUserProfile().then(profile=>{
+              convo.set('profile',profile)
+              convo.sendTypingIndicator(1000).then(() => askSex(convo));
+            })
+
         });
     });
 
-    const askName = (convo) => {
-        convo.ask((convo) => {
-            convo.say(`What is your name?`, {typing: true});
-        }, (payload, convo, data) => {
-            const text = payload.message.text;
-            convo.set('name', text);
-            askSex(convo);
-        });
-    };
+
 
     const askSex = (convo) => {
         convo.ask((convo) => {
@@ -26,10 +38,10 @@ module.exports = (bot) =>{
         }, (payload, convo, data) => {
             const text = payload.message.text;
             if(text.toLowerCase() === 'female' ){
-                convo.set('gender', 'female');
+                convo.set('gender', 0);
                 askPregnancy(convo);
             } else if(text.toLowerCase() === 'male'){
-                convo.set('gender', 'male');
+                convo.set('gender', 1);
                 askAge(convo);
             } else{
                 convo.say('We couldn\'t catch what you just said').then(()=> askSex(convo) );
@@ -96,7 +108,7 @@ module.exports = (bot) =>{
         }, (payload,chat,data) =>{
             const text = payload.message.text;
             if( isNaN(text) ){
-                convo.say('That\'s not a proper age').then(()=> askAge());
+                convo.say('That\'s not a proper age').then(()=> askAge(convo));
             } else if(text<17 || text>65){
                 convo.say('Sorry, according to medical research it would be better for you if you don\'t donate plasma' +
                     '\n But Thank you for your support. Please Take care of yourself and your family. ');
@@ -127,16 +139,7 @@ module.exports = (bot) =>{
                 '    - Or visited hill tracts within 2 months\n'
             convo.sendButtonTemplate(text,buttons);
         }, (payload, convo, data) => {
-            const text = payload.message.text;
-            if(text.toLowerCase() === 'yes' ){
-                convo.say('Sorry, according to medical research it would be better for you if you don\'t donate plasma' +
-                    '\n But Thank you for your support. Please Take care of yourself and your family. ');
-                convo.end();
-            } else if(text.toLowerCase() === 'no'){
-                askRecoveryDate(convo);
-            } else{
-                convo.say('We couldn;t catch what you just said').then(()=> askPregnancy(convo) );
-            }
+
 
         },[
             {
@@ -158,94 +161,190 @@ module.exports = (bot) =>{
 
     const askRecoveryDate = (convo) =>{
         convo.ask( (convo) =>{
-            convo.say('How long ago did you recover from covid-19? Input just the number of days',{typing:true});
+            convo.say('How long ago did you recover from COVID-19? Enter just the number of days',{typing:true});
         }, (payload,chat,data) =>{
             const text = payload.message.text;
             if( isNaN(text) ){
-                convo.say('That\'s not a proper number of days').then(()=> askRecoveryDate());
+                convo.say('That\'s not a proper number of days').then(()=> askRecoveryDate(convo));
             }else{
-                convo.set('recoveredDate',text);
-                askState(convo);
+                if(text<14){
+                  convo.say(`Sorry, according to medical research you must recover at least 14 days before donating plasma, please come back again after ${14-text} days, thank you . `);
+                  convo.end();
+                }else{
+                  convo.set('recoveredDate',text);
+                  askBloodGroup(convo);
+                }
+
             }
         });
     };
 
-    const askState = (convo) => {
-        convo.ask((convo) => {
-            const text = 'How would you best describe your covid 19 situation\n' +
-                '    1) Tested positive and was hospitalized\n' +
-                '    2) Tested positive and took treatment from home\n' +
-                '    3) Had symptoms of covid 19 but cured now\n';
-            convo.say(text,{typing:true});
-        }, (payload, convo, data) => {
-            const text = payload.message.text;
-            if(text === '1' ){
-                convo.set('state','High');
-                askBloodGroup(convo);
-            } else if(text === '2' ){
-                convo.set('state','Medium');
-                askBloodGroup(convo);
-            } else if(text === '3'){
-                convo.set('state','Low');
-                askBloodGroup(convo);
-            }else{
-                convo.say('We couldn\'t catch what you just said.Type just (1/2/3)').then(()=> askState(convo) );
-            }
 
-        });
-    };
+
+
+    const isValidBG=text=>{
+      if(text.trim().toLowerCase().trim()==='a+')return true
+      else if(text.trim().toLowerCase().trim()==='a-')return true
+      else if(text.trim().toLowerCase().trim()==='b+')return true
+      else if(text.trim().toLowerCase().trim()==='b-')return true
+      else if(text.trim().toLowerCase().trim()==='ab+')return true
+      else if(text.trim().toLowerCase().trim()==='ab-')return true
+      else if(text.trim().toLowerCase().trim()==='o+')return true
+      else if(text.trim().toLowerCase().trim()==='o-')return true
+      else return false
+    }
+
 
     const askBloodGroup = (convo) =>{
         convo.ask( (convo) =>{
-            convo.say('What is your blood group?',{typing:true});
+            convo.say('What is your blood group ? (enter bloodgroup properly , for example, A+)',{typing:true});
         }, (payload,chat,data) =>{
             const text = payload.message.text;
-            // Check the blood group crieteria
-            convo.set('BG',text);
-            askLocation(convo);
+            if(isValidBG(text)){
+              convo.set('BG',text.toLowerCase().trim())
+              askLocation(convo)
+            }else{
+              convo.say('That\'s not a proper bloodgroup (enter your bloodgroup, for example, A+)').then(()=> askBloodGroup(convo));
+            }
         });
     };
 
+
     const askLocation = (convo) =>{
         convo.ask( (convo) =>{
-            convo.say('What is your usual location?',{typing:true});
+            convo.say('What is your current address (city,country)?',{typing:true});
         }, (payload,chat,data) =>{
             const text = payload.message.text;
             // Check the blood group crieteria
             convo.set('location',text);
+            askContact(convo);
+        });
+    };
+
+    const askContact = (convo) =>{
+        convo.ask( (convo) =>{
+            convo.say('Please provide us with your phone number or email address so that plasma recipients can contact you easily',{typing:true});
+        }, (payload,chat,data) =>{
+            const text = payload.message.text;
+            // Check the blood group crieteria
+            convo.set('contact',text);
             showDetails(convo);
         });
     };
 
     const showDetails = (convo) =>{
-        const details = `So, Here is what we got from you,\n`+
-            `I ${convo.get('name')} , ${convo.get('age')} years ${convo.get('gender')} `+
-            `with blood group ${convo.get('BG')}  have no conditions that might `+
-            `affect the reciever and having ${convo.get('state')} number of antibody `+
-            `in plasma after recovering from covid for at least 14 days am willing `+
-            `to donate on my free will. 
-        `;
-        convo.say(details,{typing:true});
-        convo.end();
+        const query = {
+            text: 'INSERT INTO fbcontest(m_id,type,data,bg) VALUES($1,$2,$3,$4) returning *',
+            values: [
+              convo.get('profile').id,
+              0,
+              {
+                name:convo.get('profile').first_name+' '+convo.get('profile').last_name,
+                image:convo.get('profile').profile_pic,
+                timestamp:Date.now(),
+                age:convo.get('age'),
+                location:convo.get('location'),
+                contact:convo.get('contact'),
+                sex:convo.get('gender'),
+                recovered:convo.get('recoveredDate')
+              },
+              convo.get('BG')
+            ]
+          }
+          pool.query(query).then(insRes=>{
+            const details = `So, Here is what we got from you,\n`+
+                `I am ${convo.get('profile').first_name+' '+convo.get('profile').last_name} , ${convo.get('age')} years old, ${convo.get('gender')}, `+
+                `with blood group ${convo.get('BG').toUpperCase()} , have no conditions that might `+
+                `affect the recipient(s) in a negative way, `+
+                `I recovered from COVID-19 ${convo.get('recoveredDate')} days ago and am willing `+
+                `to donate on my free will.
+            `;
+            convo.say(details,{typing:true}).then(()=>{
+              convo.say("We have taken your information and will let you know if needed",{typing:true}).then(()=>{
+                pool.query(`select * from fbcontest where type=1 and bg=\'${convo.get('BG')}\'`).then(res=>{
+                    if(res.rows.length>0){
+                      var tmpMsg='We have found some plasma-receipients matching your bloodgroup';
+                      res.rows.map((row,ind)=>{
+                        var des=`\n\n(${ind+1}) ${row.data.name}\n`+
+                                `Blood group - ${row.bg.toUpperCase()}\n`+
+                                `Age - ${row.data.age} years, ${row.data.sex}\n`+
+                                `Diagnosed with COVID-19 ${row.data.affected} days ago\n`+
+                                `Address - ${row.data.location}\n`+
+                                `Contact - ${row.data.contact}\n`;
+
+                        tmpMsg+=des
+                      })
+                      convo.say(tmpMsg,{typing:true}).then(()=>{
+                        var elements=[]
+                        res.rows.map(row=>{
+                          var des=`Blood group - ${row.bg.toUpperCase()}\n`+
+                                  `Age - ${row.data.age} years, ${row.data.sex}\n`+
+                                  `Diagnosed with COVID-19 ${row.data.affected} days ago\n`+
+                                  `Address - ${row.data.location}\n`+
+                                  `Contact - ${row.data.contact}\n`;
+                          var element = {
+                              "title":row.data.name,
+                              "image_url":row.data.image,
+                              "subtitle":des,
+                              "buttons":[
+                                {type: 'postback', title: `Inform-${row.sl}-${insRes.rows[0].sl}`, payload: 'INFORM_RECEIPIENT' }
+                              ]
+                          };
+                          elements.push(element)
+                        })
+                        convo.sendGenericTemplate(elements,{typing:true}).then(()=>{
+                          convo.end()
+                        })
+                      })
+                    }
+                    else
+                      convo.end();
+
+                })
+              })
+            });
+          }).catch(err=>{
+            console.log(err)
+          })
     };
 
-    const donatePlasmaLoop = (convo) => {
-        convo.ask((convo)=>{
-            convo.say(`Want to donate plasma?`,{typing:true});
-        }, (payload, convo, data) => {
-            const text = payload.message.text;
-            convo.set('name', text);
-            if( text === "no" ){
-                convo.say(`Shala dibi na mane? tor bap dibe`,{typing:true}).then(() => donatePlasmaLoop(convo));
-            } else if( text === "yes" ) {
-                convo.getUserProfile().then((user) => {
-                    convo.say(`Thank you for your cooperation ${user.first_name} ${user.last_name}`,{typing:true});
-                });
+    bot.on('postback:INFORM_RECEIPIENT', (payload, chat) => {
+        var sl=payload.postback.title.split('-')[1]
+        var sl1=payload.postback.title.split('-')[2]
+        console.log(sl)
+        pool.query('select * from fbcontest where sl='+sl).then(res0=>{
+          if(res0.rows.length>0){
+            pool.query('select * from fbcontest where sl='+sl1).then(res=>{
+              var row=res.rows[0]
+              var tmpMsg='We have found a plasma donor matching your bloodgroup';
+              var des=`\n\n${row.data.name}\n`+
+                      `Blood group - ${row.bg.toUpperCase()}\n`+
+                      `Age - ${row.data.age} years, ${row.data.sex}\n`+
+                      `Recovered from COVID-19 ${row.data.recovered} days ago\n`+
+                      `Address - ${row.data.location}\n`+
+                      `Contact - ${row.data.contact}\n`;
+              tmpMsg+=des
+              bot.sendTextMessage(res0.rows[0].m_id,tmpMsg).then(()=>{
+                var des=`Blood group - ${row.bg.toUpperCase()}\n`+
+                        `Age - ${row.data.age} years, ${row.data.sex}\n`+
+                        `Recovered from COVID-19 ${row.data.recovered} days ago\n`+
+                        `Address - ${row.data.location}\n`+
+                        `Contact - ${row.data.contact}\n`;
+                var element = {
+                    "title":row.data.name,
+                    "image_url":row.data.image,
+                    "subtitle":des
+                };
+                bot.sendGenericTemplate(res0.rows[0].m_id,[element],{typing:true}).then(()=>{
+                  chat.say(`We have sent your information to the recipient`)
+                })
+              })
+            })
 
-                convo.end();
-            }
+          }
+        })
 
-        });
-    };
+    });
+
 
 };

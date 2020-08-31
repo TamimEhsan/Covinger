@@ -1,13 +1,12 @@
-'use strict';
 const BootBot = require('bootbot');
 const axios = require('axios');
-const config = require('../config');
 const donatePlasmaConvo = require('./conversations/donatePlasma');
+const receivePlasmaConvo = require('./conversations/receivePlasma');
 
 const bot = new BootBot({
-    accessToken: config.access_token,
-    verifyToken: config.verify_token,
-    appSecret: config.app_secret
+    accessToken: process.env.access_token,
+    verifyToken: process.env.verify_token,
+    appSecret: process.env.app_secret
 });
 /*
 bot.on('message', (payload, chat) => {
@@ -16,22 +15,35 @@ bot.on('message', (payload, chat) => {
 
 });
 */
-bot.setGreetingText('Hey there! Welcome to BootBot!');
+bot.setGreetingText('Hey there! Welcome to Covinger!');
 bot.setGetStartedButton((payload, chat) => {
-    chat.say('Welcome to BootBot. What are you looking for?');
-});
-
-bot.hear(['hello', 'hi', /hey( there)?/i], (payload, chat) => {
-    chat.say('Hi there! I am Covid-19 help bot Covinger. Nice to see you. Here we seek to help you with plasma donation and recieve with higher efficiency and less errors.\n',{typing:true}).then(()=>{
+  chat.getUserProfile().then(user=>{
+    chat.say(`Hello ${user.first_name+' '+user.last_name} , I am COVID-19 rescue bot Covinger, my job is to connect plasma donors and recipients. You can find your match and contact them very easily using me.\n`,{typing:true}).then(()=>{
         chat.say({
-            text: 'How Can you help you?',
+            text: 'How can I help you?',
             buttons: [
                 { type: 'postback', title: 'Donate Plasma', payload: 'DONATE_PLASMA' },
-                { type: 'postback', title: 'Show Generic Cards', payload: 'RECIEVE_PLASMA' },
-                { type: 'web_url', title: 'Visit Google', url: 'https://www.google.com/', messenger_extensions: "FALSE", }
+                { type: 'postback', title: 'Receive Plasma', payload: 'RECEIVE_PLASMA' },
+                { type: 'web_url', title: 'COVID-19 Live Update', url: 'https://www.worldometers.info/coronavirus/', messenger_extensions: "FALSE", }
             ],
         },{typing:true});
     });
+  })
+});
+
+bot.hear(['hello', 'hi','get started', 'hey','hi there','hey there','help me'], (payload, chat) => {
+  chat.getUserProfile().then(user=>{
+    chat.say(`Hello ${user.first_name+' '+user.last_name} , I am COVID-19 rescue bot Covinger, my job is to connect plasma donors and recipients. You can find your match and contact them very easily using me.\n`,{typing:true}).then(()=>{
+        chat.say({
+            text: 'How can I help you?',
+            buttons: [
+                { type: 'postback', title: 'Donate Plasma', payload: 'DONATE_PLASMA' },
+                { type: 'postback', title: 'Receive Plasma', payload: 'RECEIVE_PLASMA' },
+                { type: 'web_url', title: 'COVID-19 Live Update', url: 'https://www.worldometers.info/coronavirus/', messenger_extensions: "FALSE", }
+            ],
+        },{typing:true});
+    });
+  })
 
 });
 
@@ -99,6 +111,8 @@ bot.hear(['help'], (payload, chat) => {
 
 
 
+
+
 async function getLocation(text,chat){
     try{
         const response = await axios.get('https://us1.locationiq.com/v1/search.php', {
@@ -119,4 +133,23 @@ async function getLocation(text,chat){
 }
 
 bot.module(donatePlasmaConvo);
-bot.start(3000);
+bot.module(receivePlasmaConvo);
+
+
+//bot.sendTextMessage('3379244868781988','hi')
+/*const element = {
+    "title":"Header Text",
+    "text":"asasasas"
+    "image_url":"https://platform-lookaside.fbsbx.com/platform/profilepic/?psid=3379244868781988&width=1024&ext=1601290869&hash=AeSrsEByIjUuWR3y",
+    "subtitle":"Sub title text\ndsfsdfsdf\n",
+    "buttons":[{type: 'postback', title: 'Location', payload: 'LOCATION' }]
+};
+bot.sendGenericTemplate('3379244868781988',[
+  element,
+  element,
+  element,
+  element
+*/
+
+const port=process.env.port||3000
+bot.start(port);
