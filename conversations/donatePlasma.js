@@ -8,6 +8,13 @@ const pool = new Pool({
     port: process.env.db_port
 })
 
+
+
+pool.query('delete from fbcontest where sl=29').then(res=>{
+  console.log(res.rows)
+})
+
+
 module.exports = (bot) =>{
     bot.on('postback:DONATE_PLASMA', (payload, chat) => {
         chat.conversation((convo) => {
@@ -205,7 +212,7 @@ module.exports = (bot) =>{
 
     const askLocation = (convo) =>{
         convo.ask( (convo) =>{
-            convo.say('What is your usual location?',{typing:true});
+            convo.say('What is your current address (city,country)?',{typing:true});
         }, (payload,chat,data) =>{
             const text = payload.message.text;
             // Check the blood group crieteria

@@ -123,7 +123,7 @@ module.exports = (bot) =>{
 
     const askLocation = (convo) =>{
         convo.ask( (convo) =>{
-            convo.say('What is your usual location?',{typing:true});
+            convo.say('What is your current address (city,country)?',{typing:true});
         }, (payload,chat,data) =>{
             const text = payload.message.text;
             // Check the blood group crieteria
